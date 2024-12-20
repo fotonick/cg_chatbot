@@ -17,7 +17,6 @@ REPL_HISTFILE = ".chat_history"
 REPL_HISTFILE_SIZE = 1000
 
 from argparse import ArgumentParser, Namespace
-import asyncio
 from datetime import datetime
 import os
 import readline
@@ -251,10 +250,7 @@ def main():
         generation = rag_chain.invoke({"documents": documents, "question": question})
         return {"documents": documents, "question": question, "generation": generation}
 
-    async def _with_context(future, context):
-        return (await future, context)  # just carry along the context
-
-    async def _grade_documents(state: GraphState) -> GraphState:
+    def grade_documents(state: GraphState) -> GraphState:
         """
         Determines whether the retrieved documents are relevant to the question
         If all documents are not relevant, we will set a flag to run web search.
@@ -265,27 +261,17 @@ def main():
         Returns:
             state (dict): Filtered out irrelevant documents and updated web_search state
         """
-
+        vprint("---CHECK DOCUMENT RELEVANCE TO QUESTION---")
         question = _get_state_or_raise(state, "question")
         documents = _get_state_or_raise(state, "documents")
 
-        # Score each doc
-        tasks = []
-        for d in documents:
-            tasks.append(
-                asyncio.create_task(
-                    _with_context(
-                        retrieval_grader.ainvoke(
-                            {"question": question, "document": d.page_content}
-                        ),
-                        d,
-                    )
-                )
-            )
+        # Score each doc in parallel
+        results = retrieval_grader.batch(
+            [{"question": question, "document": d.page_content} for d in documents]
+        )
 
         filtered_docs = []
-        results = await asyncio.gather(*tasks)
-        for response, d in results:
+        for response, d in zip(results, documents):
             grade = response["score"]
             # Document relevant
             if grade.lower() == "yes":
@@ -296,10 +282,6 @@ def main():
                 vprint("---GRADE: DOCUMENT NOT RELEVANT---")
 
         return {"documents": filtered_docs, "question": question}
-
-    def grade_documents(state: GraphState) -> GraphState:
-        vprint("---CHECK DOCUMENT RELEVANCE TO QUESTION---")
-        return asyncio.run(_grade_documents(state))
 
     ### Conditional edges
 
