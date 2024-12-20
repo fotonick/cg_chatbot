@@ -25,14 +25,13 @@ import sys
 import threading
 import time
 from typing_extensions import TypedDict
-from typing import Any, Dict, Generator, Literal, NoReturn, Optional, TypeVar
+from typing import Any, Generator, Literal, NoReturn, Optional
 
 from langchain.prompts import ChatPromptTemplate
 from langchain_chroma import Chroma
 from langchain_ollama import ChatOllama
 from langchain_community.embeddings.gpt4all import GPT4AllEmbeddings
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.prompt_values import ChatPromptValue
 from langchain_core.output_parsers import StrOutputParser
 from langgraph.graph import END, StateGraph
 from langchain.schema import Document
@@ -94,7 +93,6 @@ def main():
         persist_directory=args.chromadb_persist_directory,
         embedding_function=embedding,
     )
-    retriever = vectorstore.as_retriever()
 
     ### Retrieval Grader
 
@@ -323,7 +321,6 @@ def main():
         """
 
         vprint("---ASSESS GRADED DOCUMENTS---")
-        question = _get_state_or_raise(state, "question")
         filtered_documents = _get_state_or_raise(state, "documents")
         start_time = _get_state_or_raise(state, "start_time")
 
@@ -529,11 +526,9 @@ def main():
         import subprocess
         import requests
         from starlette.applications import Starlette
-        from starlette.exceptions import HTTPException
         from starlette.requests import Request
         from starlette.responses import HTMLResponse, JSONResponse, Response
-        from starlette.staticfiles import StaticFiles
-        from starlette.routing import Route, Mount
+        from starlette.routing import Route
         import uvicorn
 
         HEALTHCHECK_URL = "http://localhost:11434/api/show"

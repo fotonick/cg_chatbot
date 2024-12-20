@@ -13,7 +13,6 @@ def main():
         RecursiveCharacterTextSplitter,
     )
     from langchain_chroma import Chroma
-    from langchain_community.document_loaders import TextLoader
     from langchain_community.embeddings.gpt4all import GPT4AllEmbeddings
 
     md_text = open("docs/cully-grove-declaration-and-bylaws-recorded-ocr.md").read()
