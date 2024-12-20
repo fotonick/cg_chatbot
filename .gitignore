@@ -1,0 +1,6 @@
+chroma_db/
+__pycache__/
+.chat_history
+env.sh
+pyrightconfig.json
+*.lock

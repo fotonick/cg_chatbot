@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta author="Nickolas Fotopoulos" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cully Grove Bylaws Chatbot</title>
+    </head>
+    <body>
+        <h1>Cully Grove Bylaws Chatbot</h1>
+        <p>
+            This chatbot has ingested the
+            <a
+                href="https://cullygrove.org/wp-content/uploads/2011/04/cully-grove-declaration-and-bylaws-recorded.pdf"
+                >Cully Grove Bylaws</a
+            >
+            and can answer questions about them. Each query is independent of
+            previous queries. Logs containing anonymous queries and answers will
+            be used only for debugging and product improvement purposes.
+        </p>
+        <p><span id="version"></span></p>
+        <form id="form">
+            <label for="query">&gt;&gt;&gt;</label>
+            <input type="text" id="query" />
+            <input type="submit" value="submit" id="submit" />
+            <span id="health_status"></span>
+        </form>
+        <br />
+        <div id="response"></div>
+        <script>
+            const form = document.getElementById("form");
+            const query = document.getElementById("query");
+            const health_status_span = document.getElementById("health_status");
+            const response_div = document.getElementById("response");
+            const version_span = document.getElementById("version");
+            var outstanding_queries = 0; // reference count
+            var healthy = false;
+
+            function start_spinner() {
+                var duration = 600;
+                var element = window.document.getElementById("submit");
+                var frames = "⢎⡰⢎⡡⢎⡑⢎⠱⠎⡱⢊⡱⢌⡱⢆⡱";
+                var num_frames = frames.length / 2;
+                step = function (timestamp) {
+                    if (!outstanding_queries) {
+                        window.document.getElementById("submit").value =
+                            "Submit";
+                        return;
+                    }
+                    const frame =
+                        Math.floor((timestamp * num_frames) / duration) %
+                        num_frames;
+                    element.value = frames.substring(
+                        2 * frame,
+                        2 * (frame + 1),
+                    );
+                    window.requestAnimationFrame(step);
+                };
+
+                window.requestAnimationFrame(step);
+            }
+
+            function ignore_input(event) {
+                event.preventDefault(); // avoid reloading the page
+            }
+
+            function update_response(event) {
+                event.preventDefault(); // avoid reloading the page
+                outstanding_queries = outstanding_queries + 1;
+
+                query_text = query.value;
+                query.value = "";
+                const request = new Request(
+                    "/api/query?q=" + encodeURIComponent(query_text),
+                );
+                if (outstanding_queries == 1) {
+                    start_spinner();
+                }
+                fetch(request)
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(
+                                `HTTP error! Status: ${response.status}`,
+                            );
+                        }
+                        return response.json();
+                    })
+                    .then((json) => {
+                        const question_element = document.createElement("p");
+                        const strong = document.createElement("strong");
+                        strong.textContent = "Question: " + json.question;
+                        question_element.appendChild(strong);
+                        const answer_element = document.createElement("p");
+                        answer_element.textContent =
+                            "Response: " + json.response;
+                        const elapsed_element = document.createElement("p");
+                        const small = document.createElement("small");
+                        small.textContent =
+                            "Took " + json.elapsed_seconds + " seconds";
+                        elapsed_element.appendChild(small);
+                        const br = document.createElement("br");
+                        for (const e of [
+                            br,
+                            question_element,
+                            answer_element,
+                            elapsed_element,
+                        ]) {
+                            response_div.appendChild(e);
+                        }
+                    })
+                    .catch((error) => {
+                        error_element = document.createElement("p");
+                        const strong = document.createElement("strong");
+                        strong.textContent = error.message;
+                        error_element.appendChild(strong);
+                        response_div.appendChild(error_element);
+                    })
+                    .finally(() => {
+                        outstanding_queries = outstanding_queries - 1;
+                    });
+            }
+
+            function get_version() {
+                const request = new Request("/api/version");
+                fetch(request)
+                    .then((response) => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                    })
+                    .then((response_json) => {
+                        version_string =
+                            "Version: <code>" +
+                            response_json.version +
+                            "</code>";
+                        if (!response_json.clean) {
+                            version_string = version_string + " (dirty)";
+                        }
+                        version_span.innerHTML = version_string;
+                    })
+                    .catch((e) => {
+                        version_span.innerHTML = "Version: unknown";
+                    });
+            }
+
+            function check_health(event) {
+                function update_healthy() {
+                    health_status_span.innerHTML =
+                        "&nbsp;&nbsp;<span style='color: #00ff00'>✔</span> Online";
+                    health_status_span.fgcolor = "✔ Online";
+                    form.addEventListener("submit", update_response);
+                    form.removeEventListener("submit", ignore_input);
+                    get_version();
+                    healthy = true;
+                }
+
+                function update_unhealthy() {
+                    health_status_span.innerHTML =
+                        "&nbsp;&nbsp;<span style='color: #ff0000'>✘</span> Offline";
+                    version_span.innerHTML = "Version: unknown";
+                    form.removeEventListener("submit", update_response);
+                    form.addEventListener("submit", ignore_input);
+                    healthy = false;
+                }
+
+                const request = new Request("/api/healthcheck");
+                fetch(request)
+                    .then((response) => {
+                        if (response.ok && !healthy) {
+                            update_healthy();
+                        } else if (!response.ok && healthy) {
+                            update_unhealthy();
+                        } // else status quo
+                    })
+                    .catch((e) => {
+                        update_unhealthy();
+                    });
+            }
+            check_health();
+            let health_timer_id = setInterval(check_health, 10000);
+        </script>
+    </body>
+</html>
