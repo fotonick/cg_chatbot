@@ -1,0 +1,16 @@
+[Unit]
+Description=Cully Grove Chatbot
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=foton
+WorkingDirectory=/home/foton/src/cg_chatbot
+ExecStart=/home/foton/src/cg_chatbot/systemd/launch.zsh
+
+[Install]
+WantedBy=multi-user.target
+
