@@ -9,7 +9,8 @@
 
 ### LLM
 
-LOCAL_LLM = "llama3.1"  # "phi3:medium-128k"
+GRADER_LLM = "llama3.1"  # "phi3:medium-128k"
+GENERATE_LLM = "llama3.1"  # "deepseek-r1:8b"
 STARTING_K = 4
 MAX_RUNTIME_SECONDS = 20
 CHROMADB_PERSIST_DIRECTORY = "./chroma_db"
@@ -95,7 +96,7 @@ def main():
 
     ### Retrieval Grader
 
-    llm = ChatOllama(model=LOCAL_LLM, format="json", temperature=0)
+    llm = ChatOllama(model=GRADER_LLM, format="json", temperature=0)
     prompt = ChatPromptTemplate.from_messages(
         [
             (
@@ -131,12 +132,12 @@ def main():
             ),
         ]
     )
-    llm = ChatOllama(model=LOCAL_LLM, temperature=0)
+    llm = ChatOllama(model=GENERATE_LLM, temperature=0)
     rag_chain = prompt | llm | StrOutputParser()
 
     ### Hallucination Grader
 
-    llm = ChatOllama(model=LOCAL_LLM, format="json", temperature=0)
+    llm = ChatOllama(model=GRADER_LLM, format="json", temperature=0)
     prompt = ChatPromptTemplate.from_messages(
         [
             (
@@ -160,7 +161,7 @@ def main():
 
     ### Answer Grader
 
-    llm = ChatOllama(model=LOCAL_LLM, format="json", temperature=0)
+    llm = ChatOllama(model=GRADER_LLM, format="json", temperature=0)
     prompt = ChatPromptTemplate.from_messages(
         [
             (
@@ -514,7 +515,7 @@ def main():
         import uvicorn
 
         HEALTHCHECK_URL = "http://localhost:11434/api/show"
-        HEALTHCHECK_DATA = f'{{"name":"{LOCAL_LLM}"}}'
+        HEALTHCHECK_DATA = f'{{"model":"{GRADER_LLM}"}}'
 
         async def homepage(request: Request) -> Response:
             html = open("index.html").read()
