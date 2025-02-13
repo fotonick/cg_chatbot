@@ -1,5 +1,5 @@
-Cully Grove Chatbot
-===================
+Cully Grove COA Bylaws Chatbot
+==============================
 
 # Goal
 1. Create a chatbot that we can ask questions about the [Cully Grove Bylaws](https://cullygrove.org/wp-content/uploads/2011/04/cully-grove-declaration-and-bylaws-recorded.pdf) that can run on my laptop.
