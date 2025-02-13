@@ -13,7 +13,7 @@ Cully Grove COA Bylaws Chatbot
 
 ## Status
 
-The chatbot answers questions on the bylaws correctly most of the time and is approximately fast enough (~13 s per generation) on my MacBook Pro (M1 Pro). All the code after ingestion is in a single file. Yes, I do know better, but no, I'm not planning on fixing it in the near term; PRs welcome.
+The chatbot answers questions on the bylaws correctly most of the time and is approximately fast enough (~13 s per generation) on my MacBook Pro (M1 Pro).
 
 # Setup
 
