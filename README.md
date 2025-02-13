@@ -31,7 +31,7 @@ To run at a reasoanble speed, you need either a high-spec M-series Mac or else a
 
 # Running
 
-The primary way to run the chatbot locally is with `uv run cg_chatbot repl`, which will give you a prompt where you can ask questions. Don't forget to `conda activate $MY_ENV`. You can retrieve previously asked questions, persistent across sessions, with the ↑ and ↓ arrow keys.
+The primary way to run the chatbot locally is with `uv run cg_chatbot repl`, which will give you a prompt where you can ask questions. You can retrieve previously asked questions, persistent across sessions, with the ↑ and ↓ arrow keys.
 
 ```
 >>> How many owners need to be present to form a quorum?
