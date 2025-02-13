@@ -3,7 +3,7 @@ Cully Grove Chatbot
 
 # Goal
 1. Create a chatbot that we can ask questions about the [Cully Grove Bylaws](https://cullygrove.org/wp-content/uploads/2011/04/cully-grove-declaration-and-bylaws-recorded.pdf) that can run on my laptop.
-2. Extend the chatbot's knowledge to documents in Cully Grove's Google Drive shared drive.
+2. (Optional, TODO) Extend the chatbot's knowledge to documents in Cully Grove's Google Drive shared drive.
 
 # Strategy
 * OCR [Cully Grove Bylaws PDF](https://cullygrove.org/wp-content/uploads/2011/04/cully-grove-declaration-and-bylaws-recorded.pdf) to Markdown using [Marker](https://github.com/VikParuchuri/marker)
@@ -13,11 +13,11 @@ Cully Grove Chatbot
 
 ## Status
 
-The chatbot answers questions on the bylaws correctly most of the time and is approximately fast enough (~13 s per generation) on my Mac Mini (M4 Max 64GB RAM).
+The chatbot answers questions on the bylaws correctly most of the time and is approximately fast enough (~13 s per generation) on my MacBook Pro (M1 Pro). All the code after ingestion is in a single file. Yes, I do know better, but no, I'm not planning on fixing it in the near term; PRs welcome.
 
 # Setup
 
-To run at a reasoanble speed, you need either an M-series Mac or else a GPU with several GB of VRAM.
+To run at a reasoanble speed, you need either a high-spec M-series Mac or else a GPU with several GB of VRAM.
 
 1. Install LLM
     1. Install [Ollama](https://ollama.com)
@@ -26,8 +26,7 @@ To run at a reasoanble speed, you need either an M-series Mac or else a GPU with
 2. Install program dependencies
     1. Install [uv](https://github.com/astral-sh/uv), which allows you to reproduce my environment very closely.
     2. On non-Macs, download a recent version of the NVIDIA CUDA Toolkit, version 12.5 at the time of this writing
-    3. `uv sync` to install Python dependencies and "compile" into a runnable script.
-s must be rerun for every code change.
+    3. `uv sync` to install Python dependencies.
 3. Build vector store from source documents: `uv run ingest`
 
 # Running
@@ -41,13 +40,13 @@ According to the provided documents, a quorum is formed when the presence of own
  ⢎⠱
 ```
 
-There's also `uv run cg_chatbot.py demo`, which will run a pre-programmed list of questions as a demonstration. It was useful during development to give me a pulse on performance.
+There's also `uv run cg_chatbot.py demo`, which will run a pre-programmed list of questions as a demonstration. It was useful during development to give me a pulse on performance, particularly with the `-v` option to print timings.
 
 Finally, there's the web interface, which you can invoke with `uv run cg_chatbot.py serve`. Browse to http://localhost:8000 to enter your questions.
 
 # Installing a systemd service
 
-On a Linux server with systemd, you can set `cg_chatbot.py` to run as a service that is started when the machine starts, even before you log in.
+On a Linux server with systemd, you can set the web interface to run as a service that is started when the machine starts, even before you log in.
 
 1. Edit `cg_chatbot.service` with your own username and home directory.
 2. `sudo cp cg_chatbot.service /etc/systemd/system`
