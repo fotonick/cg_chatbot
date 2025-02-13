@@ -1,7 +1,7 @@
 [project]
 name = "cg-chatbot"
 version = "0.1.0"
-description = "Add your description here"
+description = "Cully Grove COA Bylaws Chatbot"
 authors = [
     { name = "Nickolas Fotopoulos", email = "nickolas.fotopoulos@gmail.com" },
 ]
