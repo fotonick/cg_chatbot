@@ -40,5 +40,5 @@ jobs:
       - name: Perform health check
         run: |
           curl -fs -o /dev/null http://localhost:8000/
-          curl -f http://localhost:8000/api/version
-          curl -f http://localhost:8000/api/healthcheck
+          curl -fs http://localhost:8000/api/version
+          curl -fs http://localhost:8000/api/healthcheck
