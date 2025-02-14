@@ -33,7 +33,7 @@ jobs:
           ollama pull llama3.1:8b
 
       - name: Run the web server
-        run: uv run cg_chatbot serve
+        run: uv run cg_chatbot serve &
 
       - name: Perform health check
         run: curl -f http://localhost:8000/api/healthcheck
