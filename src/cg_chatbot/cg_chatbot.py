@@ -140,6 +140,7 @@ def main():
             if not completed:
                 break
     elif args.mode == "serve":
+        from pprint import pprint
         from starlette.applications import Starlette
         from starlette.routing import Route
         import uvicorn
@@ -151,5 +152,6 @@ def main():
             Route("/api/healthcheck", api.healthcheck),
             Route("/api/version", api.version),
         ]
+        pprint(routes)
         app = Starlette(debug=True, routes=routes)
         uvicorn.run(app, host="0.0.0.0", port=8000)
