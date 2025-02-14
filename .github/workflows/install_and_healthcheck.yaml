@@ -36,4 +36,5 @@ jobs:
         run: |
           uv run cg_chatbot serve &
           sleep 10
+          curl -f http://localhost:8000/
           curl -f http://localhost:8000/api/healthcheck
