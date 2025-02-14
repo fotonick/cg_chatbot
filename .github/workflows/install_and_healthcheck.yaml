@@ -32,9 +32,13 @@ jobs:
           sleep 1
           ollama pull llama3.1:8b
 
-      - name: Run the web server, perform check
+      - name: Run the web server
         run: |
           uv run cg_chatbot serve &
           sleep 10
-          curl -f http://localhost:8000/
+
+      - name: Perform health check
+        run: |
+          curl -fs -o /dev/null http://localhost:8000/
+          curl -f http://localhost:8000/api/version
           curl -f http://localhost:8000/api/healthcheck
