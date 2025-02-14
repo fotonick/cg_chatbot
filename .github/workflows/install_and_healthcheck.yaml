@@ -1,0 +1,39 @@
+# Ref: https://docs.astral.sh/uv/guides/integration/github/#setting-up-python
+name: CG Chatbot CI
+on: [push, pull_request]
+
+jobs:
+  install-deps:
+    name: python
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.5.31"
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install the project
+        run: uv sync --all-extras --dev
+
+      - name: Install ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Run ollama
+        run: |
+          ollama serve &
+          sleep 1
+          ollama pull llama3.1:8b
+
+      - name: Run the web server
+        run: uv run cg_chatbot serve
+
+      - name: Perform health check
+        run: curl -f http://localhost:8000/api/healthcheck
