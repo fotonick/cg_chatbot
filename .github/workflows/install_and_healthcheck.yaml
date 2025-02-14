@@ -30,7 +30,7 @@ jobs:
         run: |
           ollama serve &
           sleep 1
-          ollama pull llama3.1:8b
+          ollama pull llama3.1
 
       - name: Run the web server
         run: |
